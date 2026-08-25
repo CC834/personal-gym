@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f5f0">
+  <title>Gym</title>
+  <link rel="stylesheet" href="/gym/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="wordmark" href="/" aria-label="Back to Home">Gym</a>
+      <div class="top-actions">
+        <span class="save-state" id="saveState" aria-live="polite">Ready</span>
+        <button class="icon-button" id="themeButton" type="button" aria-label="Switch color theme" title="Switch color theme">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.5 0-1-.1-1.4A7 7 0 0 1 12 3Z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Gym sections">
+      <button class="tab active" type="button" data-tab="today">Today</button>
+      <button class="tab" type="button" data-tab="progress">Progress</button>
+      <button class="tab" type="button" data-tab="plan">Plan</button>
+      <button class="tab" type="button" data-tab="library">Library</button>
+    </nav>
+
+    <main id="main" tabindex="-1">
+      <div class="loading-state"><span></span><p>Opening your training week…</p></div>
+    </main>
+  </div>
+
+  <dialog class="search-dialog" id="searchDialog" aria-labelledby="searchTitle">
+    <div class="dialog-head">
+      <div><p class="eyebrow">Exercise library</p><h2 id="searchTitle">Add an exercise</h2></div>
+      <button class="icon-button" id="closeSearch" type="button" aria-label="Close exercise search">×</button>
+    </div>
+    <div class="search-controls">
+      <label class="search-field"><span class="sr-only">Search exercises</span><input id="exerciseSearch" type="search" placeholder="Search by name or muscle" autocomplete="off"></label>
+      <select id="bodyPartFilter" aria-label="Filter by body part"><option value="">All body parts</option></select>
+      <select id="equipmentFilter" aria-label="Filter by equipment"><option value="">All equipment</option></select>
+      <select id="targetFilter" aria-label="Filter by target muscle"><option value="">All target muscles</option></select>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/gym/app.js"></script>
+</body>
+</html>

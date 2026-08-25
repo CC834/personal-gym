@@ -1,0 +1,16 @@
+{
+  "name": "personal-gym",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "catalog:import": "node scripts/import-catalog.mjs",
+    "catalog:media": "node scripts/import-media.mjs",
+    "check": "node --check src/server.mjs && node --check src/store.mjs && node --check src/workouts.mjs && node --check src/catalog.mjs && node --check src/auth.mjs && node --check scripts/import-catalog.mjs && node --check scripts/import-media.mjs && node --check public/app.js && node --check public/render.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

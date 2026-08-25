@@ -1,0 +1,27 @@
+[Unit]
+Description=Private Personal Gym
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ct/apps/personal-gym
+ExecStart=/usr/bin/node /home/ct/apps/personal-gym/src/server.mjs
+Environment=GYM_CONFIG=/home/ct/.config/personal-gym/config.json
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+RuntimeDirectory=personal-gym
+RuntimeDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/ct/.local/share/personal-gym
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=true
+
+[Install]
+WantedBy=default.target

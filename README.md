@@ -33,8 +33,11 @@ The importer requires the upstream notice, rejects missing or non-180×180 files
 ## Development
 
 ```sh
+npm install
 npm run check
 npm test
 ```
+
+`npm run build:muscles` rebuilds the committed, self-hosted React muscle-map island. The rest of the browser application remains vanilla JavaScript and has no runtime CDN dependency. Third-party licensing is recorded in `THIRD_PARTY_NOTICES.md`.
 
 The HTTP test binds a temporary loopback port. Production runs through the restrictive user systemd unit in `deploy/`.

@@ -91,7 +91,8 @@ export function createGymApp(config, overrides = {}) {
     ['/app.css', ['text/css; charset=utf-8', join(root, 'public/app.css')]],
     ['/app.js', ['text/javascript; charset=utf-8', join(root, 'public/app.js')]],
     ['/render.js', ['text/javascript; charset=utf-8', join(root, 'public/render.js')]],
-    ['/muscle-map.js', ['text/javascript; charset=utf-8', join(root, 'public/muscle-map.js')]]
+    ['/muscle-map.js', ['text/javascript; charset=utf-8', join(root, 'public/muscle-map.js')]],
+    ['/muscle-map-island.js', ['text/javascript; charset=utf-8', join(root, 'public/muscle-map-island.js')]]
   ]);
 
   async function handle(req, res) {

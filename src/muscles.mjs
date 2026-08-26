@@ -36,6 +36,7 @@ export function musclesForExercise({ target, muscleGroup, secondaryMuscles = [] 
 }
 
 export function aliasesForMuscle(id) {
+  if (String(id) === 'back') return [...groupById.get('upper_back').aliases, ...groupById.get('lats').aliases];
   const group = groupById.get(String(id));
   if (!group) throw Object.assign(new Error('Choose a valid muscle group.'), { statusCode: 400 });
   return group.aliases;

@@ -1,6 +1,6 @@
 # Personal Gym Engineering Guide
 
-Read `README.md`, `package.json`, and the relevant tests before editing. This is a small Node.js 24 ESM application using `node:http`, `node:sqlite`, vanilla HTML/CSS/JavaScript, and `node:test`. Do not introduce a framework, build tool, or dependency without a concrete need and explicit approval.
+Read `README.md`, `package.json`, and the relevant tests before editing. This is a small Node.js 24 ESM application using `node:http`, `node:sqlite`, mostly vanilla HTML/CSS/JavaScript, and `node:test`. React and esbuild are limited to the self-contained muscle-map island in `browser/`; do not expand their scope or introduce another dependency without a concrete need and explicit approval.
 
 ## Product boundaries
 
@@ -12,7 +12,7 @@ Read `README.md`, `package.json`, and the relevant tests before editing. This is
 
 - Prefer simple, explicit code that matches existing names, error handling, API shapes, and interface language. Avoid drive-by refactors, speculative abstractions, and unnecessary dependencies.
 - Keep HTTP parsing and response handling in `src/server.mjs`, workout and progression rules in `src/workouts.mjs`, SQLite statements and transactions in `src/store.mjs`, authentication in `src/auth.mjs`, and catalog/media validation in `src/catalog.mjs`.
-- Keep browser event handlers thin and rendering in `public/render.js`. Preserve semantic HTML, keyboard access, visible focus, responsive layouts, useful empty/error states, and reduced-motion support.
+- Keep browser event handlers thin and rendering in `public/render.js`. Keep React-specific code inside the muscle-map island and commit its generated browser bundle. Preserve semantic HTML, keyboard access, visible focus, responsive layouts, useful empty/error states, and reduced-motion support.
 - Avoid both giant mixed-responsibility files and mechanical fragmentation. Create a module only when it improves a real responsibility boundary, readability, testability, reuse, or maintainability. Do not add one-use interfaces, factories, wrappers, or vague `Manager`, `Helper`, or `BaseService` classes.
 - Validate untrusted input, parameterize SQL, use transactions for multi-step persistence, and keep entry points small. Treat deployed schema changes as append-only and preserve existing data.
 

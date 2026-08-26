@@ -1,5 +1,6 @@
 import { renderLibrary, renderPlan, renderProgress, renderSearchResults, renderToday } from './render.js';
 import { muscleLabel } from './muscle-map.js';
+import { mountMuscleMaps, unmountMuscleMaps } from './muscle-map-island.js';
 
 const BASE = location.pathname === '/gym' || location.pathname.startsWith('/gym/') ? '/gym' : '';
 const main = document.querySelector('#main');
@@ -66,6 +67,7 @@ function clonePlan(plan) {
 }
 
 function render() {
+  unmountMuscleMaps();
   document.body.dataset.view = state.tab;
   document.querySelectorAll('[data-tab]').forEach((button) => button.classList.toggle('active', button.dataset.tab === state.tab));
   if (!state.bootstrap) return;
@@ -74,6 +76,7 @@ function render() {
   if (state.tab === 'plan') main.innerHTML = renderPlan(state);
   if (state.tab === 'library') main.innerHTML = renderLibrary(state);
   installMediaFallbacks(main);
+  mountMuscleMaps(main, openSearchPanel);
 }
 
 function installMediaFallbacks(root) {

@@ -178,21 +178,30 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .plan-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
 .plan-name-row .field { max-width: 420px; }
 .plan-muscle-overview { display: grid; grid-template-columns: minmax(180px,.7fr) minmax(300px,1fr); align-items: center; gap: 26px; margin-bottom: 20px; padding: 20px; border: 1px solid color-mix(in srgb, var(--planning) 25%, var(--line)); border-radius: 14px; background: color-mix(in srgb, var(--planning-soft) 52%, var(--surface-strong)); }
-.muscle-map { width: 100%; max-width: 330px; justify-self: end; }
-.muscle-map.compact { max-width: 270px; }
-.muscle-map svg { width: 100%; height: auto; display: block; }
-.body-label { fill: var(--faint); font: 700 9px var(--sans); letter-spacing: .1em; text-transform: uppercase; }
-.body-base { fill: var(--wash); stroke: var(--line); stroke-width: 1.5; stroke-linejoin: round; }
-.muscle-region { fill: transparent; stroke: transparent; stroke-width: 1.5; transition: fill 140ms ease, opacity 140ms ease, stroke 140ms ease; }
-.muscle-region.active.primary { fill: var(--accent); opacity: calc(.62 + var(--muscle-strength) * .32); }
-.muscle-region.active.secondary { fill: var(--accent); opacity: calc(.25 + var(--muscle-strength) * .22); }
-.muscle-region.interactive { cursor: pointer; }
-.muscle-region.interactive:hover, .muscle-region.interactive:focus { opacity: 1; stroke: var(--accent-dark); outline: none; }
+.muscle-map-host { width: 100%; min-width: 0; justify-self: end; }
+.muscle-map { width: 100%; max-width: 390px; margin-left: auto; }
+.muscle-map.compact { max-width: 320px; }
+.muscle-map-loading { margin: 0; padding: 28px; color: var(--muted); font-size: 11px; text-align: center; }
+.body-model-picker { display: flex; justify-content: flex-end; gap: 3px; margin-bottom: 8px; }
+.body-model-picker button { min-height: 28px; padding: 0 10px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--faint); cursor: pointer; font-size: 9px; font-weight: 700; }
+.body-model-picker button.active { border-color: color-mix(in srgb, var(--accent) 34%, var(--line)); background: var(--accent-soft); color: var(--accent-dark); }
+.muscle-anatomy { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 8px; }
+.muscle-anatomy figure { min-width: 0; margin: 0; }
+.muscle-anatomy figcaption { margin-bottom: 4px; color: var(--faint); font-size: 8px; font-weight: 700; letter-spacing: .12em; text-align: center; text-transform: uppercase; }
+.muscle-anatomy svg { width: 100% !important; height: auto !important; max-height: 310px; margin: auto; }
+.muscle-map.compact .muscle-anatomy svg { max-height: 240px; }
+.muscle-anatomy path { transition: fill 140ms ease, stroke 140ms ease; }
+.muscle-anatomy path[fill="#EBEBE4"] { fill: var(--wash) !important; stroke: var(--line) !important; cursor: default !important; opacity: 1 !important; }
+.muscle-anatomy:not(.interactive) path { cursor: default !important; }
+.muscle-anatomy.interactive path:not([fill="#EBEBE4"]):hover { stroke: var(--accent-dark) !important; stroke-width: 3 !important; }
 .muscle-legend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: -3px; color: var(--muted); font-size: 9px; }
 .muscle-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .muscle-legend i { width: 9px; height: 9px; display: inline-block; border-radius: 3px; background: var(--accent); }
 .muscle-legend i.secondary { opacity: .36; }
-.muscle-legend small { flex-basis: 100%; color: var(--faint); text-align: center; }
+.muscle-choices { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+.muscle-choices button { min-height: 28px; padding: 0 9px; border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line)); border-radius: 999px; background: var(--surface); color: var(--accent-dark); cursor: pointer; font-size: 9px; font-weight: 650; }
+.muscle-choices button:hover { background: var(--accent-soft); }
+.muscle-map-hint { display: block; margin-top: 7px; color: var(--faint); font-size: 8px; text-align: center; }
 .muscle-map-empty { margin: 0; padding: 28px; color: var(--muted); font-size: 11px; text-align: center; }
 .plan-exercises { display: grid; gap: 9px; }
 .plan-exercise { display: grid; grid-template-columns: minmax(250px,1.2fr) 80px 90px 100px 96px auto; align-items: end; gap: 9px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-strong); }
@@ -250,7 +259,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .tabs { width: 100%; margin: 25px 0 39px; }
   .tab { flex: 1; min-width: 0; padding: 0 10px; }
   .today-focus, .plan-muscle-overview { grid-template-columns: 1fr; }
-  .today-focus .muscle-map, .plan-muscle-overview .muscle-map { justify-self: center; }
+  .today-focus .muscle-map, .plan-muscle-overview .muscle-map { margin-inline: auto; }
   .page-head { align-items: flex-start; flex-direction: column; }
   .summary-grid { grid-template-columns: 1fr; }
   .metric { min-height: 108px; }

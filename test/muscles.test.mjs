@@ -13,6 +13,8 @@ test('normalizes catalog aliases into primary and secondary body-map regions', (
 
 test('provides bounded aliases for muscle-filtered exercise search', () => {
   assert.ok(aliasesForMuscle('shoulders').includes('delts'));
+  assert.ok(aliasesForMuscle('back').includes('rhomboids'));
+  assert.ok(aliasesForMuscle('back').includes('latissimus dorsi'));
   assert.ok(muscleOptions().some((muscle) => muscle.id === 'lats' && muscle.label === 'Lats'));
   assert.throws(() => aliasesForMuscle('unknown'), /valid muscle group/);
 });

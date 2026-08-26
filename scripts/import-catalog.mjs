@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { loadCatalogFile } from '../src/catalog.mjs';
 import { GymStore } from '../src/store.mjs';
 
@@ -9,7 +11,7 @@ function argument(name) {
 
 const source = argument('--source');
 const revision = argument('--revision');
-const configPath = process.env.GYM_CONFIG ?? '/home/ct/.config/personal-gym/config.json';
+const configPath = process.env.GYM_CONFIG ?? join(homedir(), '.config', 'personal-gym', 'config.json');
 
 if (!source || !revision) {
   console.error('Usage: npm run catalog:import -- --source /path/to/exercises.json --revision <commit>');

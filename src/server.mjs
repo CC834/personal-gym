@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname, extname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { GymAuth } from './auth.mjs';
@@ -213,7 +214,7 @@ export function createGymApp(config, overrides = {}) {
 }
 
 async function main() {
-  const configPath = process.env.GYM_CONFIG ?? '/home/ct/.config/personal-gym/config.json';
+  const configPath = process.env.GYM_CONFIG ?? join(homedir(), '.config', 'personal-gym', 'config.json');
   const config = JSON.parse(readFileSync(configPath, 'utf8'));
   const app = createGymApp(config);
   app.server.listen(config.port, config.host, () => console.log(`Personal gym listening on http://${config.host}:${config.port}${config.mountPath}`));

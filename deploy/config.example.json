@@ -5,7 +5,7 @@
   "allowedTailscaleLogin": "owner@example.com",
   "allowedOrigin": "https://your-tailnet-host.ts.net",
   "timezone": "Europe/Stockholm",
-  "databasePath": "/home/ct/.local/share/personal-gym/gym.sqlite3",
-  "sessionSecretFile": "/home/ct/.local/share/personal-gym/session-secret",
-  "licensedMediaDirectory": "/home/ct/.local/share/personal-gym/catalog-media"
+  "databasePath": "/home/your-user/.local/share/personal-gym/gym.sqlite3",
+  "sessionSecretFile": "/home/your-user/.local/share/personal-gym/session-secret",
+  "licensedMediaDirectory": "/home/your-user/.local/share/personal-gym/catalog-media"
 }

@@ -1,4 +1,5 @@
 import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname, join, resolve, sep } from 'node:path';
 import { GymStore } from '../src/store.mjs';
 
@@ -35,7 +36,7 @@ function sourceFile(root, relativePath) {
 }
 
 const sourceArgument = argument('--source');
-const configPath = process.env.GYM_CONFIG ?? '/home/ct/.config/personal-gym/config.json';
+const configPath = process.env.GYM_CONFIG ?? join(homedir(), '.config', 'personal-gym', 'config.json');
 if (!sourceArgument) {
   console.error('Usage: npm run catalog:media -- --source /path/to/licensed/exercises-dataset');
   process.exit(1);

@@ -4,6 +4,7 @@ import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { finishSession, estimatedOneRepMax, normalizePlan, normalizeSet } from './workouts.mjs';
 import { isIsoDate, shiftDate, weekdayFor } from './dates.mjs';
+import { aliasesForMuscle, musclesForExercise } from './muscles.mjs';
 
 const STARTER_EXERCISES = [
   ['local:barbell-bench-press', 'Barbell bench press', 'chest', 'barbell', 'pectorals'],
@@ -97,6 +98,8 @@ export class GymStore {
         name TEXT NOT NULL,
         equipment TEXT NOT NULL,
         body_part TEXT NOT NULL,
+        primary_muscle TEXT,
+        secondary_muscles TEXT NOT NULL DEFAULT '[]',
         position INTEGER NOT NULL,
         prescribed_sets INTEGER NOT NULL,
         planned_sets INTEGER NOT NULL,
@@ -135,6 +138,23 @@ export class GymStore {
     if (!sessionExerciseColumns.has('planned_sets')) {
       this.db.exec('ALTER TABLE session_exercises ADD COLUMN planned_sets INTEGER');
       this.db.exec('UPDATE session_exercises SET planned_sets=prescribed_sets WHERE planned_sets IS NULL');
+    }
+    let addedMuscleSnapshot = false;
+    if (!sessionExerciseColumns.has('primary_muscle')) {
+      this.db.exec('ALTER TABLE session_exercises ADD COLUMN primary_muscle TEXT');
+      addedMuscleSnapshot = true;
+    }
+    if (!sessionExerciseColumns.has('secondary_muscles')) {
+      this.db.exec("ALTER TABLE session_exercises ADD COLUMN secondary_muscles TEXT NOT NULL DEFAULT '[]'");
+      addedMuscleSnapshot = true;
+    }
+    if (addedMuscleSnapshot) {
+      const update = this.db.prepare('UPDATE session_exercises SET primary_muscle=?,secondary_muscles=? WHERE id=?');
+      const rows = this.db.prepare(`SELECT se.id,ce.target,ce.muscle_group,ce.secondary_muscles FROM session_exercises se LEFT JOIN catalog_exercises ce ON ce.id=se.catalog_id`).all();
+      for (const row of rows) {
+        const muscles = musclesForExercise({ target: row.target, muscleGroup: row.muscle_group, secondaryMuscles: JSON.parse(row.secondary_muscles || '[]') });
+        update.run(muscles.primary, JSON.stringify(muscles.secondary), row.id);
+      }
     }
     if (Number(this.db.prepare('SELECT count(*) AS count FROM catalog_exercises').get().count) === 0) {
       const insert = this.db.prepare(`INSERT INTO catalog_exercises(
@@ -179,7 +199,7 @@ export class GymStore {
     return { count, revision };
   }
 
-  searchExercises({ query = '', bodyPart = '', equipment = '', target = '', limit = 30, offset = 0 } = {}) {
+  searchExercises({ query = '', bodyPart = '', equipment = '', target = '', muscle = '', limit = 30, offset = 0 } = {}) {
     limit = Math.max(1, Math.min(60, Number(limit) || 30));
     offset = Math.max(0, Math.min(10_000, Number(offset) || 0));
     const clauses = [`body_part <> 'cardio'`];
@@ -192,9 +212,17 @@ export class GymStore {
     for (const [column, value] of [['body_part', bodyPart], ['equipment', equipment], ['target', target]]) {
       if (String(value).trim()) { clauses.push(`${column} = ? COLLATE NOCASE`); values.push(String(value).trim()); }
     }
+    if (String(muscle).trim()) {
+      const aliases = aliasesForMuscle(String(muscle).trim());
+      const direct = aliases.map(() => 'target = ? COLLATE NOCASE OR muscle_group = ? COLLATE NOCASE').join(' OR ');
+      const secondary = aliases.map(() => 'sm.value = ? COLLATE NOCASE').join(' OR ');
+      clauses.push(`((${direct}) OR EXISTS (SELECT 1 FROM json_each(catalog_exercises.secondary_muscles) sm WHERE ${secondary}))`);
+      for (const alias of aliases) values.push(alias, alias);
+      values.push(...aliases);
+    }
     const where = clauses.join(' AND ');
     const total = Number(this.db.prepare(`SELECT count(*) AS count FROM catalog_exercises WHERE ${where}`).get(...values).count);
-    const rows = this.db.prepare(`SELECT id,name,body_part,equipment,target,image_path,gif_path,attribution FROM catalog_exercises WHERE ${where} ORDER BY name COLLATE NOCASE LIMIT ? OFFSET ?`).all(...values, limit, offset);
+    const rows = this.db.prepare(`SELECT id,name,body_part,equipment,target,muscle_group,secondary_muscles,image_path,gif_path,attribution FROM catalog_exercises WHERE ${where} ORDER BY name COLLATE NOCASE LIMIT ? OFFSET ?`).all(...values, limit, offset);
     return { total, items: rows.map((row) => this.#publicExercise(row)), limit, offset };
   }
 
@@ -238,9 +266,10 @@ export class GymStore {
       weekday: Number(row.weekday),
       name: row.name,
       exercises: this.db.prepare(`SELECT pe.id,pe.exercise_id,pe.position,pe.prescribed_sets,pe.rep_min,pe.rep_max,pe.target_grams,pe.increment_grams,
-          ce.name,ce.equipment,ce.body_part,ce.image_path,ce.gif_path
+          ce.name,ce.equipment,ce.body_part,ce.target,ce.muscle_group,ce.secondary_muscles,ce.image_path,ce.gif_path
         FROM plan_exercises pe JOIN catalog_exercises ce ON ce.id=pe.exercise_id WHERE pe.plan_id=? ORDER BY pe.position`).all(row.id).map((item) => ({
           id: Number(item.id), exerciseId: item.exercise_id, name: item.name, equipment: item.equipment, bodyPart: item.body_part,
+          muscles: musclesForExercise({ target: item.target, muscleGroup: item.muscle_group, secondaryMuscles: JSON.parse(item.secondary_muscles || '[]') }),
           imageAvailable: Boolean(item.image_path), gifAvailable: Boolean(item.gif_path), sets: Number(item.prescribed_sets), repMin: Number(item.rep_min),
           repMax: Number(item.rep_max), targetGrams: Number(item.target_grams), incrementGrams: Number(item.increment_grams)
         }))
@@ -285,18 +314,19 @@ export class GymStore {
     if (existing) fail('Finish the active workout before starting another.', 409);
     const plan = this.db.prepare('SELECT id,name FROM workout_plans WHERE id=?').get(Number(planId));
     if (!plan) fail('Workout not found.', 404);
-    const exercises = this.db.prepare(`SELECT pe.*,ce.name,ce.equipment,ce.body_part FROM plan_exercises pe JOIN catalog_exercises ce ON ce.id=pe.exercise_id WHERE pe.plan_id=? ORDER BY pe.position`).all(plan.id);
+    const exercises = this.db.prepare(`SELECT pe.*,ce.name,ce.equipment,ce.body_part,ce.target,ce.muscle_group,ce.secondary_muscles FROM plan_exercises pe JOIN catalog_exercises ce ON ce.id=pe.exercise_id WHERE pe.plan_id=? ORDER BY pe.position`).all(plan.id);
     if (!exercises.length) fail('Add at least one exercise before starting this workout.', 409);
     const id = randomUUID();
     const now = new Date().toISOString();
     this.db.exec('BEGIN IMMEDIATE');
     try {
       this.db.prepare(`INSERT INTO sessions(id,plan_id,workout_name,local_date,status,started_at) VALUES(?,?,?,?,'active',?)`).run(id, plan.id, plan.name, date, now);
-      const insertExercise = this.db.prepare(`INSERT INTO session_exercises(id,session_id,source_plan_exercise_id,catalog_id,name,equipment,body_part,position,prescribed_sets,planned_sets,rep_min,rep_max,target_grams,increment_grams) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+      const insertExercise = this.db.prepare(`INSERT INTO session_exercises(id,session_id,source_plan_exercise_id,catalog_id,name,equipment,body_part,primary_muscle,secondary_muscles,position,prescribed_sets,planned_sets,rep_min,rep_max,target_grams,increment_grams) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
       const insertSet = this.db.prepare(`INSERT INTO session_sets(session_exercise_id,set_number,completed,updated_at) VALUES(?,?,0,?)`);
       for (const exercise of exercises) {
         const exerciseId = randomUUID();
-        insertExercise.run(exerciseId, id, exercise.id, exercise.exercise_id, exercise.name, exercise.equipment, exercise.body_part, exercise.position, exercise.prescribed_sets, exercise.prescribed_sets, exercise.rep_min, exercise.rep_max, exercise.target_grams, exercise.increment_grams);
+        const muscles = musclesForExercise({ target: exercise.target, muscleGroup: exercise.muscle_group, secondaryMuscles: JSON.parse(exercise.secondary_muscles || '[]') });
+        insertExercise.run(exerciseId, id, exercise.id, exercise.exercise_id, exercise.name, exercise.equipment, exercise.body_part, muscles.primary, JSON.stringify(muscles.secondary), exercise.position, exercise.prescribed_sets, exercise.prescribed_sets, exercise.rep_min, exercise.rep_max, exercise.target_grams, exercise.increment_grams);
         for (let setNumber = 1; setNumber <= exercise.prescribed_sets; setNumber += 1) insertSet.run(exerciseId, setNumber, now);
       }
       this.db.exec('COMMIT');
@@ -317,6 +347,7 @@ export class GymStore {
       name: exercise.name,
       equipment: exercise.equipment,
       bodyPart: exercise.body_part,
+      muscles: { primary: exercise.primary_muscle, secondary: JSON.parse(exercise.secondary_muscles || '[]') },
       prescribedSets: Number(exercise.prescribed_sets),
       plannedSets: Number(exercise.planned_sets ?? exercise.prescribed_sets),
       repMin: Number(exercise.rep_min),
@@ -555,6 +586,7 @@ export class GymStore {
   #publicExercise(row, details = false) {
     const exercise = {
       id: row.id, name: row.name, bodyPart: row.body_part, equipment: row.equipment, target: row.target,
+      muscles: musclesForExercise({ target: row.target, muscleGroup: row.muscle_group, secondaryMuscles: JSON.parse(row.secondary_muscles || '[]') }),
       imageAvailable: Boolean(row.image_path), gifAvailable: Boolean(row.gif_path), attribution: row.attribution
     };
     if (details) Object.assign(exercise, {

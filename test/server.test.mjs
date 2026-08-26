@@ -50,8 +50,11 @@ test('serves the private mounted Gym API and validates mutations', async () => {
     assert.match((await custom.json()).exercise.id, /^custom:/);
     const exported = await fetch(`${origin}/gym/api/exercises/export`, { headers: { ...owner, cookie } });
     assert.equal((await exported.json()).exercises.some((exercise) => exercise.name === 'Cable lateral raise' && exercise.custom), true);
+    const muscleSearch = await fetch(`${origin}/gym/api/exercises?muscle=shoulders`, { headers: { ...owner, cookie } });
+    assert.equal((await muscleSearch.json()).items.some((exercise) => exercise.name === 'Cable lateral raise'), true);
     const search = await fetch(`${origin}/gym/api/exercises?q=push`, { headers: { ...owner, cookie } });
     assert.equal((await search.json()).items[0].name, 'Push-up');
+    assert.equal((await fetch(`${origin}/gym/muscle-map.js`, { headers: { ...owner, cookie } })).status, 200);
     assert.equal((await fetch(`${origin}/gym/health`)).status, 200);
   } finally {
     await new Promise((resolve) => app.server.close(resolve));

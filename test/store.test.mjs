@@ -164,3 +164,20 @@ test('creates searchable custom exercises and includes them in catalog exports',
     assert.throws(() => value.store.createCustomExercise(input), /already exists/);
   } finally { value.close(); }
 });
+
+test('maps plan and session muscles and searches both primary and secondary groups', () => {
+  const value = fixture();
+  try {
+    const custom = value.store.createCustomExercise({
+      name: 'Personal shoulder press', bodyPart: 'shoulders', equipment: 'dumbbell', target: 'delts', instructions: []
+    });
+    const plan = value.store.savePlan({ days: [{ weekday: 2, name: 'Shoulders', exercises: [{
+      exerciseId: custom.id, sets: 3, repMin: 8, repMax: 12, targetGrams: 10_000, incrementGrams: 1_000
+    }] }] });
+    assert.deepEqual(plan.days[0].exercises[0].muscles, { primary: 'shoulders', secondary: [] });
+    assert.equal(value.store.searchExercises({ muscle: 'shoulders' }).items.some((exercise) => exercise.id === custom.id), true);
+    const session = value.store.startSession(plan.days[0].id, '2026-08-25');
+    assert.deepEqual(session.exercises[0].muscles, { primary: 'shoulders', secondary: [] });
+    assert.throws(() => value.store.searchExercises({ muscle: 'not-a-muscle' }), /valid muscle group/);
+  } finally { value.close(); }
+});

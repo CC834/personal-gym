@@ -90,7 +90,8 @@ export function createGymApp(config, overrides = {}) {
     ['/index.html', ['text/html; charset=utf-8', join(root, 'public/index.html')]],
     ['/app.css', ['text/css; charset=utf-8', join(root, 'public/app.css')]],
     ['/app.js', ['text/javascript; charset=utf-8', join(root, 'public/app.js')]],
-    ['/render.js', ['text/javascript; charset=utf-8', join(root, 'public/render.js')]]
+    ['/render.js', ['text/javascript; charset=utf-8', join(root, 'public/render.js')]],
+    ['/muscle-map.js', ['text/javascript; charset=utf-8', join(root, 'public/muscle-map.js')]]
   ]);
 
   async function handle(req, res) {
@@ -116,6 +117,7 @@ export function createGymApp(config, overrides = {}) {
         bodyPart: url.searchParams.get('bodyPart') ?? '',
         equipment: url.searchParams.get('equipment') ?? '',
         target: url.searchParams.get('target') ?? '',
+        muscle: url.searchParams.get('muscle') ?? '',
         limit: url.searchParams.get('limit'),
         offset: url.searchParams.get('offset')
       });

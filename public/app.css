@@ -105,6 +105,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .empty-state h2 { margin: 0; font-family: var(--serif); font-size: 29px; font-weight: 400; }
 .empty-state p { max-width: 430px; margin: 12px auto 24px; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .workout-list { display: grid; gap: 11px; }
+.today-focus { display: grid; grid-template-columns: minmax(180px,1fr) minmax(260px,360px); align-items: center; gap: 28px; margin-bottom: 20px; padding: 20px 24px; }
+.today-focus h2, .plan-muscle-overview h2 { margin: 0; font-family: var(--serif); font-size: 25px; font-weight: 400; }
+.today-focus-copy > p:last-child, .plan-muscle-overview > div > p:last-child { max-width: 360px; margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
 .exercise-card { overflow: hidden; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
 .exercise-summary { width: 100%; display: grid; grid-template-columns: 44px minmax(0,1fr) auto; align-items: center; gap: 14px; padding: 15px 17px; border: 0; background: transparent; text-align: left; cursor: pointer; }
 .exercise-index { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; background: var(--wash); color: var(--muted); font-size: 11px; font-weight: 700; }
@@ -174,10 +177,28 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .plan-editor { padding: 22px; }
 .plan-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
 .plan-name-row .field { max-width: 420px; }
+.plan-muscle-overview { display: grid; grid-template-columns: minmax(180px,.7fr) minmax(300px,1fr); align-items: center; gap: 26px; margin-bottom: 20px; padding: 20px; border: 1px solid color-mix(in srgb, var(--planning) 25%, var(--line)); border-radius: 14px; background: color-mix(in srgb, var(--planning-soft) 52%, var(--surface-strong)); }
+.muscle-map { width: 100%; max-width: 330px; justify-self: end; }
+.muscle-map.compact { max-width: 270px; }
+.muscle-map svg { width: 100%; height: auto; display: block; }
+.body-label { fill: var(--faint); font: 700 9px var(--sans); letter-spacing: .1em; text-transform: uppercase; }
+.body-base { fill: var(--wash); stroke: var(--line); stroke-width: 1.5; stroke-linejoin: round; }
+.muscle-region { fill: transparent; stroke: transparent; stroke-width: 1.5; transition: fill 140ms ease, opacity 140ms ease, stroke 140ms ease; }
+.muscle-region.active.primary { fill: var(--accent); opacity: calc(.62 + var(--muscle-strength) * .32); }
+.muscle-region.active.secondary { fill: var(--accent); opacity: calc(.25 + var(--muscle-strength) * .22); }
+.muscle-region.interactive { cursor: pointer; }
+.muscle-region.interactive:hover, .muscle-region.interactive:focus { opacity: 1; stroke: var(--accent-dark); outline: none; }
+.muscle-legend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: -3px; color: var(--muted); font-size: 9px; }
+.muscle-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.muscle-legend i { width: 9px; height: 9px; display: inline-block; border-radius: 3px; background: var(--accent); }
+.muscle-legend i.secondary { opacity: .36; }
+.muscle-legend small { flex-basis: 100%; color: var(--faint); text-align: center; }
+.muscle-map-empty { margin: 0; padding: 28px; color: var(--muted); font-size: 11px; text-align: center; }
 .plan-exercises { display: grid; gap: 9px; }
 .plan-exercise { display: grid; grid-template-columns: minmax(250px,1.2fr) 80px 90px 100px 96px auto; align-items: end; gap: 9px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-strong); }
 .plan-exercise-heading { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) 78px; align-items: center; gap: 13px; }
 .plan-exercise-heading strong { font-family: var(--serif); font-size: 17px; font-weight: 400; line-height: 1.2; }
+.plan-exercise-heading strong { overflow-wrap: anywhere; }
 .plan-animation { width: 78px; height: 68px; display: grid; place-items: center; overflow: hidden; border: 1px solid color-mix(in srgb, var(--planning) 28%, var(--line)); border-radius: 10px; background: var(--planning-soft); color: var(--faint); font-size: 8px; text-align: center; }
 .plan-animation img { width: 100%; height: 100%; object-fit: cover; }
 .compact-label { display: grid; gap: 5px; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
@@ -201,6 +222,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 25px 27px 18px; }
 .dialog-head h2 { font-size: 34px; }
 .search-controls { display: grid; grid-template-columns: minmax(220px,1fr) 150px 150px 150px; gap: 8px; padding: 0 27px 19px; border-bottom: 1px solid var(--line); }
+.muscle-filter-chip { width: max-content; margin: 12px 27px 0; padding: 7px 10px; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); cursor: pointer; font-size: 10px; font-weight: 700; }
 .search-field input, .search-controls select { width: 100%; min-height: 43px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); }
 .search-results { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; padding: 19px 27px 28px; overflow: auto; }
 .search-card { display: grid; grid-template-columns: 68px minmax(0,1fr) auto; align-items: center; gap: 13px; min-height: 92px; padding: 11px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
@@ -217,10 +239,18 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .loading-state span { width: 20px; height: 20px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 700ms linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+@media (max-width: 960px) {
+  .plan-exercise { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .plan-exercise-heading { grid-column: 1 / -1; }
+  .plan-row-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}
+
 @media (max-width: 760px) {
   .app-shell { width: calc(100% - 28px); padding-top: 20px; }
   .tabs { width: 100%; margin: 25px 0 39px; }
   .tab { flex: 1; min-width: 0; padding: 0 10px; }
+  .today-focus, .plan-muscle-overview { grid-template-columns: 1fr; }
+  .today-focus .muscle-map, .plan-muscle-overview .muscle-map { justify-self: center; }
   .page-head { align-items: flex-start; flex-direction: column; }
   .summary-grid { grid-template-columns: 1fr; }
   .metric { min-height: 108px; }
@@ -245,7 +275,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 @media (max-width: 480px) {
   .save-state { display: none; }
   .page-head h1 { font-size: 39px; }
-  .set-row { grid-template-columns: 32px 1fr 1fr 39px 27px; gap: 6px; }
+  .tabs { overflow-x: auto; }
+  .tab { padding-inline: 5px; font-size: 11px; }
+  .today-focus, .plan-editor { padding: 16px; }
+  .plan-muscle-overview { padding: 14px; }
+  .plan-name-row { align-items: stretch; flex-direction: column; }
+  .plan-name-row .field { max-width: none; }
+  .set-row { grid-template-columns: 27px minmax(0,1fr) minmax(0,1fr) 35px 24px; gap: 4px; }
+  .set-row .field { min-width: 0; padding-inline: 7px; }
+  .set-check { width: 35px; }
   .exercise-summary { grid-template-columns: 38px minmax(0,1fr) auto; padding-inline: 12px; }
   .exercise-body { padding-inline: 12px; }
   .workout-actions, .plan-footer { align-items: stretch; flex-direction: column-reverse; }
@@ -253,6 +291,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .body-form { grid-template-columns: 1fr; }
   .custom-exercise-form { grid-template-columns: 1fr; }
   .custom-instructions { grid-column: auto; }
+  .search-card { grid-template-columns: 54px minmax(0,1fr); }
+  .search-thumb { width: 54px; height: 54px; }
+  .search-actions { grid-column: 1 / -1; justify-content: flex-end; }
+  .dialog-head h2 { font-size: 29px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

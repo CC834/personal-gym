@@ -1,4 +1,5 @@
 import { renderLibrary, renderPlan, renderProgress, renderSearchResults, renderToday } from './render.js';
+import { muscleLabel } from './muscle-map.js';
 
 const BASE = location.pathname === '/gym' || location.pathname.startsWith('/gym/') ? '/gym' : '';
 const main = document.querySelector('#main');
@@ -12,6 +13,7 @@ const bodyPartFilter = document.querySelector('#bodyPartFilter');
 const equipmentFilter = document.querySelector('#equipmentFilter');
 const targetFilter = document.querySelector('#targetFilter');
 const searchResults = document.querySelector('#searchResults');
+const muscleFilterChip = document.querySelector('#muscleFilterChip');
 const toast = document.querySelector('#toast');
 
 const state = {
@@ -27,6 +29,7 @@ const state = {
   searchResults: [],
   searchLoading: false,
   searchPreview: null,
+  searchMuscle: null,
   searchTimer: null,
   saveTimers: new Map(),
   planDirty: false,
@@ -292,7 +295,7 @@ function populateFilters() {
 async function runSearch() {
   state.searchLoading = true;
   searchResults.innerHTML = renderSearchResults(state);
-  const params = new URLSearchParams({ q: exerciseSearch.value, bodyPart: bodyPartFilter.value, equipment: equipmentFilter.value, target: targetFilter.value, limit: '60' });
+  const params = new URLSearchParams({ q: exerciseSearch.value, bodyPart: bodyPartFilter.value, equipment: equipmentFilter.value, target: targetFilter.value, muscle: state.searchMuscle ?? '', limit: '60' });
   try {
     const value = await api(`/api/exercises?${params}`);
     state.searchResults = value.items;
@@ -306,7 +309,21 @@ async function runSearch() {
   }
 }
 
-function openSearchPanel() {
+function updateMuscleFilterChip() {
+  muscleFilterChip.hidden = !state.searchMuscle;
+  muscleFilterChip.textContent = state.searchMuscle ? `${muscleLabel(state.searchMuscle)} ×` : '';
+}
+
+function openSearchPanel(muscle = null) {
+  state.searchMuscle = muscle;
+  state.searchPreview = null;
+  if (muscle) {
+    exerciseSearch.value = '';
+    bodyPartFilter.value = '';
+    equipmentFilter.value = '';
+    targetFilter.value = '';
+  }
+  updateMuscleFilterChip();
   if (!searchDialog.open) searchDialog.showModal();
   exerciseSearch.focus();
   runSearch();
@@ -324,6 +341,7 @@ function addExercise(id) {
     bodyPart: source.bodyPart,
     imageAvailable: source.imageAvailable,
     gifAvailable: source.gifAvailable,
+    muscles: source.muscles,
     sets: 3,
     repMin: 8,
     repMax: 12,
@@ -354,6 +372,8 @@ async function handleClick(event) {
   const tab = event.target.closest('[data-tab]');
   if (tab) return switchTab(tab.dataset.tab);
   if (event.target.closest('[data-go-plan]')) return switchTab('plan');
+  const muscle = event.target.closest('[data-muscle]');
+  if (muscle) return openSearchPanel(muscle.dataset.muscle);
   if (event.target.closest('[data-export-plan]')) return exportPlan();
   if (event.target.closest('[data-export-exercises]')) return exportExercises();
   const expand = event.target.closest('[data-expand]');
@@ -534,6 +554,11 @@ main.addEventListener('submit', async (event) => {
 });
 
 closeSearch.addEventListener('click', () => searchDialog.close());
+muscleFilterChip.addEventListener('click', () => {
+  state.searchMuscle = null;
+  updateMuscleFilterChip();
+  runSearch();
+});
 searchDialog.addEventListener('click', (event) => { if (event.target === searchDialog) searchDialog.close(); });
 for (const control of [exerciseSearch, bodyPartFilter, equipmentFilter, targetFilter]) control.addEventListener('input', () => {
   clearTimeout(state.searchTimer);
@@ -549,6 +574,13 @@ searchResults.addEventListener('click', (event) => {
       searchResults.innerHTML = renderSearchResults(state);
       installMediaFallbacks(searchResults);
     }).catch((error) => showToast(error.message));
+  }
+});
+main.addEventListener('keydown', (event) => {
+  const muscle = event.target.closest('[data-muscle]');
+  if (muscle && (event.key === 'Enter' || event.key === ' ')) {
+    event.preventDefault();
+    openSearchPanel(muscle.dataset.muscle);
   }
 });
 

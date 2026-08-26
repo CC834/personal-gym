@@ -1,3 +1,5 @@
+import { renderMuscleMap } from './muscle-map.js';
+
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export function escapeHtml(value) {
@@ -76,6 +78,8 @@ export function renderToday(state) {
   const active = bootstrap.activeSession;
   const completed = bootstrap.completedToday;
   const startOptions = bootstrap.plan.days.map((day) => `<button class="button${scheduled?.id === day.id ? ' primary' : ''}" type="button" data-start-workout="${day.id}">Start ${escapeHtml(day.name)}</button>`).join('');
+  const focusExercises = active?.exercises ?? scheduled?.exercises ?? [];
+  const muscleSummary = focusExercises.length ? `<section class="panel today-focus"><div class="today-focus-copy"><p class="eyebrow">Today's focus</p><h2>Muscles trained</h2><p>Primary and supporting muscle groups in this workout.</p></div>${renderMuscleMap(focusExercises, { compact: true })}</section>` : '';
   let content;
   if (active) {
     content = `${active.exercises.map((exercise, index) => sessionExercise(exercise, index, state)).join('')}
@@ -86,7 +90,7 @@ export function renderToday(state) {
     content = `${completed.map(completion).join('')}${emptyState(scheduled ? '↑' : '·', scheduled ? scheduled.name : 'Rest day', scheduled ? `${scheduled.exercises.length} exercises are ready when you are.` : 'Nothing is scheduled today. Start any planned workout if you feel like training.', `<div class="workout-actions">${startOptions}</div>`)}`;
   }
   return `${pageHead(DAYS[bootstrap.weekday - 1], active?.workoutName ?? scheduled?.name ?? 'Your training', active ? 'Your sets save as you complete them.' : 'Move steadily. The numbers will take care of themselves.')}
-    <div class="workout-list">${content}</div>`;
+    ${muscleSummary}<div class="workout-list">${content}</div>`;
 }
 
 function chart(progress) {
@@ -140,6 +144,7 @@ export function renderPlan(state) {
   }).join('');
   const editor = selected ? `<section class="panel plan-editor">
     <div class="plan-name-row"><input class="field" id="planName" maxlength="60" value="${escapeHtml(selected.name)}" aria-label="Workout name"><button class="button quiet danger" type="button" data-remove-day>Make rest day</button></div>
+    <div class="plan-muscle-overview"><div><p class="eyebrow">Workout focus</p><h2>Muscles trained</h2><p>Choose a highlighted muscle to find another exercise for ${escapeHtml(selected.name)}.</p></div>${renderMuscleMap(selected.exercises, { interactive: true })}</div>
     <div class="plan-exercises">${selected.exercises.map((exercise, index) => `<div class="plan-exercise" data-plan-exercise="${escapeHtml(exercise.exerciseId)}">
       <div class="plan-exercise-heading"><strong>${escapeHtml(exercise.name)}</strong><div class="plan-animation">${exercise.gifAvailable ? `<img src="${mediaUrl(exercise.exerciseId, 'gif')}" alt="${escapeHtml(exercise.name)} demonstration" data-media-fallback>` : '<span>Animation unavailable</span>'}</div></div>
       <label class="compact-label">Sets<input class="field" data-plan-field="sets" type="number" min="1" max="20" value="${exercise.sets}"></label>

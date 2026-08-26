@@ -23,12 +23,12 @@ test('double progression requires every prescribed set at the top of the range',
   assert.equal(partial.progression[0].qualified, false);
 });
 
-test('bodyweight progression increases the rep range before adding load', () => {
+test('bodyweight progression increases the single rep target before adding load', () => {
   const result = finishSession([{ id: 'push-up', equipment: 'body weight', prescribedSets: 2, repMin: 8, repMax: 12, targetGrams: 0, incrementGrams: 2_500, sets: [
     { completed: true, reps: 12, loadGrams: 0 }, { completed: true, reps: 12, loadGrams: 0 }
   ] }]);
   assert.equal(result.progression[0].suggestionType, 'reps');
-  assert.equal(result.progression[0].suggestedRepMin, 10);
+  assert.equal(result.progression[0].suggestedRepMin, 14);
   assert.equal(result.progression[0].suggestedRepMax, 14);
   assert.equal(result.progression[0].suggestedGrams, null);
 });

@@ -63,9 +63,29 @@ export function muscleMapModel(exercises) {
   }));
 }
 
+export function musclePickerModel() {
+  const parts = new Map();
+  for (const [muscle, slugs] of Object.entries(PACKAGE_SLUGS)) {
+    for (const slug of slugs) {
+      const current = parts.get(slug) ?? { slug, muscles: [], primary: 1, secondary: 0, strength: 1 };
+      current.muscles.push(muscle);
+      parts.set(slug, current);
+    }
+  }
+  return [...parts.values()].map((part) => ({
+    ...part,
+    searchMuscle: part.slug === 'upper-back' ? 'back' : part.muscles[0]
+  }));
+}
+
 export function renderMuscleMap(exercises, { interactive = false, compact = false } = {}) {
   const parts = muscleMapModel(exercises);
   if (!parts.length) return '<p class="muscle-map-empty">Muscle data is unavailable for these exercises.</p>';
   const encodedParts = encodeURIComponent(JSON.stringify(parts));
   return `<div class="muscle-map-host" data-muscle-map data-parts="${encodedParts}" data-interactive="${interactive}" data-compact="${compact}"><p class="muscle-map-loading">Loading muscle map…</p></div>`;
+}
+
+export function renderMusclePicker() {
+  const encodedParts = encodeURIComponent(JSON.stringify(musclePickerModel()));
+  return `<div class="muscle-map-host" data-muscle-map data-parts="${encodedParts}" data-picker="true" data-compact="true"><p class="muscle-map-loading">Loading body models…</p></div>`;
 }

@@ -2,7 +2,7 @@
 
 A private, minimalist workout tracker for weekly planning, set-by-set logging, confirmed double progression, body-weight history, exercise trends, and interactive 2D muscle maps.
 
-Plan highlights the primary and supporting muscles trained each day. Selecting a highlighted muscle opens the exercise library with matching primary and secondary exercises, while Today provides a compact read-only workout summary.
+Plan highlights the primary and supporting muscles trained each day. Selecting a highlighted muscle opens the exercise library with matching primary and secondary exercises, and Add Exercise includes a full body-model picker. Today provides a compact read-only workout summary.
 
 ## Runtime
 

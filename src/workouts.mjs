@@ -79,7 +79,7 @@ export function progressionForExercise(exercise) {
     qualified,
     suggestionType: qualified ? (bodyweightReps ? 'reps' : 'load') : null,
     suggestedGrams: qualified && !bodyweightReps ? exercise.targetGrams + exercise.incrementGrams : null,
-    suggestedRepMin: bodyweightReps ? exercise.repMin + repIncrease : null,
+    suggestedRepMin: bodyweightReps ? exercise.repMax + repIncrease : null,
     suggestedRepMax: bodyweightReps ? exercise.repMax + repIncrease : null
   };
 }

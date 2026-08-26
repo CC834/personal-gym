@@ -1,5 +1,5 @@
 import { renderLibrary, renderPlan, renderProgress, renderSearchResults, renderToday } from './render.js';
-import { muscleLabel } from './muscle-map.js';
+import { muscleLabel, renderMusclePicker } from './muscle-map.js';
 import { mountMuscleMaps, unmountMuscleMaps } from './muscle-map-island.js';
 
 const BASE = location.pathname === '/gym' || location.pathname.startsWith('/gym/') ? '/gym' : '';
@@ -15,6 +15,7 @@ const equipmentFilter = document.querySelector('#equipmentFilter');
 const targetFilter = document.querySelector('#targetFilter');
 const searchResults = document.querySelector('#searchResults');
 const muscleFilterChip = document.querySelector('#muscleFilterChip');
+const searchMuscleMap = document.querySelector('#searchMuscleMap');
 const toast = document.querySelector('#toast');
 
 const state = {
@@ -63,11 +64,15 @@ async function api(path, options = {}) {
 }
 
 function clonePlan(plan) {
-  return JSON.parse(JSON.stringify(plan));
+  const clone = JSON.parse(JSON.stringify(plan));
+  for (const day of clone.days ?? []) {
+    for (const exercise of day.exercises ?? []) exercise.repMin = exercise.repMax;
+  }
+  return clone;
 }
 
 function render() {
-  unmountMuscleMaps();
+  unmountMuscleMaps(main);
   document.body.dataset.view = state.tab;
   document.querySelectorAll('[data-tab]').forEach((button) => button.classList.toggle('active', button.dataset.tab === state.tab));
   if (!state.bootstrap) return;
@@ -197,6 +202,7 @@ function updatePlanField(element) {
   const field = element.dataset.planField;
   if (field === 'targetKg') exercise.targetGrams = Math.round(Number(element.value) * 1000);
   else if (field === 'incrementKg') exercise.incrementGrams = Math.round(Number(element.value) * 1000);
+  else if (field === 'reps') exercise.repMin = exercise.repMax = Number(element.value);
   else exercise[field] = Number(element.value);
   markPlanDirty();
 }
@@ -238,7 +244,7 @@ function exportPlan() {
   const days = state.bootstrap.plan.days.map((day) => ({
     weekday: day.weekday,
     name: day.name,
-    exercises: day.exercises.map(({ exerciseId, sets, repMin, repMax, targetGrams, incrementGrams }) => ({ exerciseId, sets, repMin, repMax, targetGrams, incrementGrams }))
+    exercises: day.exercises.map(({ exerciseId, sets, repMax, targetGrams, incrementGrams }) => ({ exerciseId, sets, repMin: repMax, repMax, targetGrams, incrementGrams }))
   }));
   const backup = { format: 'personal-gym-plan', version: 1, exportedAt: new Date().toISOString(), plan: { days } };
   downloadFile(`gym-plan-${state.bootstrap.today}.json`, `${JSON.stringify(backup, null, 2)}\n`, 'application/json');
@@ -272,7 +278,13 @@ async function importPlan(file) {
   const imported = parsed?.format === 'personal-gym-plan' ? parsed.plan : parsed;
   if (!imported || !Array.isArray(imported.days)) throw new Error('This file does not contain a Gym workout plan.');
   if (!confirm('Replace your current weekly plan with this imported plan? Workout history will stay unchanged.')) return;
-  const portablePlan = { days: imported.days.map((day) => ({ ...day, id: null })) };
+  const portablePlan = { days: imported.days.map((day) => ({
+    ...day,
+    id: null,
+    exercises: Array.isArray(day.exercises)
+      ? day.exercises.map((exercise) => ({ ...exercise, repMin: exercise.repMax }))
+      : day.exercises
+  })) };
   setStatus('Importing…');
   const { plan } = await api('/api/plan', { method: 'PUT', body: JSON.stringify(portablePlan) });
   state.bootstrap = await api('/api/bootstrap');
@@ -317,6 +329,10 @@ function updateMuscleFilterChip() {
   muscleFilterChip.textContent = state.searchMuscle ? `${muscleLabel(state.searchMuscle)} ×` : '';
 }
 
+function syncMusclePicker() {
+  window.dispatchEvent(new CustomEvent('gym:muscle-filter', { detail: state.searchMuscle }));
+}
+
 function openSearchPanel(muscle = null) {
   state.searchMuscle = muscle;
   state.searchPreview = null;
@@ -327,6 +343,7 @@ function openSearchPanel(muscle = null) {
     targetFilter.value = '';
   }
   updateMuscleFilterChip();
+  syncMusclePicker();
   if (!searchDialog.open) searchDialog.showModal();
   exerciseSearch.focus();
   runSearch();
@@ -346,8 +363,8 @@ function addExercise(id) {
     gifAvailable: source.gifAvailable,
     muscles: source.muscles,
     sets: 3,
-    repMin: 8,
-    repMax: 12,
+    repMin: 10,
+    repMax: 10,
     targetGrams: 0,
     incrementGrams: 2500
   });
@@ -560,6 +577,7 @@ closeSearch.addEventListener('click', () => searchDialog.close());
 muscleFilterChip.addEventListener('click', () => {
   state.searchMuscle = null;
   updateMuscleFilterChip();
+  syncMusclePicker();
   runSearch();
 });
 searchDialog.addEventListener('click', (event) => { if (event.target === searchDialog) searchDialog.close(); });
@@ -602,6 +620,14 @@ window.addEventListener('beforeunload', (event) => {
   if (!state.planDirty) return;
   event.preventDefault();
   event.returnValue = '';
+});
+
+searchMuscleMap.innerHTML = renderMusclePicker();
+mountMuscleMaps(searchMuscleMap, (muscle) => {
+  state.searchMuscle = muscle;
+  state.searchPreview = null;
+  updateMuscleFilterChip();
+  runSearch();
 });
 
 try {

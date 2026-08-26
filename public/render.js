@@ -43,7 +43,7 @@ function sessionExercise(exercise, index, state, editable = true, sessionId = st
   return `<article class="exercise-card${open ? ' open' : ''}">
     <button class="exercise-summary" type="button" data-expand="${escapeHtml(exercise.id)}" data-catalog-id="${escapeHtml(exercise.catalogId)}" aria-expanded="${open}">
       <span class="exercise-index">${index + 1}</span>
-      <span><strong>${escapeHtml(exercise.name)}</strong><small>${exercise.prescribedSets} × ${exercise.repMin}–${exercise.repMax} · ${kg(exercise.targetGrams)}</small></span>
+      <span><strong>${escapeHtml(exercise.name)}</strong><small>${exercise.prescribedSets} × ${exercise.repMax} reps · ${kg(exercise.targetGrams)}</small></span>
       <span class="chevron" aria-hidden="true">⌄</span>
     </button>
     <div class="exercise-body">
@@ -68,7 +68,7 @@ function completion(session) {
   return `<section class="panel completion-card">
     <h3>${session.status === 'partial' ? 'Workout saved as partial' : 'Workout complete'}</h3>
     <p>${escapeHtml(session.workoutName)} · ${session.exercises.reduce((sum, exercise) => sum + exercise.sets.filter((set) => set.completed).length, 0)} sets logged</p>
-    ${pending.length ? `<div class="suggestions">${pending.map((exercise) => `<div class="suggestion"><span class="suggestion-copy"><strong>${escapeHtml(exercise.name)}</strong><small>${exercise.suggestionType === 'reps' ? `Move from ${exercise.repMin}–${exercise.repMax} to ${exercise.suggestedRepMin}–${exercise.suggestedRepMax} reps` : `Move from ${kg(exercise.targetGrams)} to ${kg(exercise.suggestedGrams)}`}</small></span><span><button class="button quiet" type="button" data-progression="dismissed" data-exercise-id="${exercise.id}">Keep</button> <button class="button primary" type="button" data-progression="accepted" data-exercise-id="${exercise.id}">Increase</button></span></div>`).join('')}</div>` : ''}
+    ${pending.length ? `<div class="suggestions">${pending.map((exercise) => `<div class="suggestion"><span class="suggestion-copy"><strong>${escapeHtml(exercise.name)}</strong><small>${exercise.suggestionType === 'reps' ? `Move from ${exercise.repMax} to ${exercise.suggestedRepMax} reps` : `Move from ${kg(exercise.targetGrams)} to ${kg(exercise.suggestedGrams)}`}</small></span><span><button class="button quiet" type="button" data-progression="dismissed" data-exercise-id="${exercise.id}">Keep</button> <button class="button primary" type="button" data-progression="accepted" data-exercise-id="${exercise.id}">Increase</button></span></div>`).join('')}</div>` : ''}
   </section>`;
 }
 
@@ -148,7 +148,7 @@ export function renderPlan(state) {
     <div class="plan-exercises">${selected.exercises.map((exercise, index) => `<div class="plan-exercise" data-plan-exercise="${escapeHtml(exercise.exerciseId)}">
       <div class="plan-exercise-heading"><strong>${escapeHtml(exercise.name)}</strong><div class="plan-animation">${exercise.gifAvailable ? `<img src="${mediaUrl(exercise.exerciseId, 'gif')}" alt="${escapeHtml(exercise.name)} demonstration" data-media-fallback>` : '<span>Animation unavailable</span>'}</div></div>
       <label class="compact-label">Sets<input class="field" data-plan-field="sets" type="number" min="1" max="20" value="${exercise.sets}"></label>
-      <label class="compact-label">Rep range<span class="rep-pair"><input class="field" data-plan-field="repMin" type="number" min="1" max="100" value="${exercise.repMin}"><span>–</span><input class="field" data-plan-field="repMax" type="number" min="1" max="100" value="${exercise.repMax}"></span></label>
+      <label class="compact-label">Reps<input class="field" data-plan-field="reps" type="number" min="1" max="100" value="${exercise.repMax}"></label>
       <label class="compact-label">Target kg<input class="field" data-plan-field="targetKg" type="number" min="0" max="1000" step=".25" value="${inputKg(exercise.targetGrams)}"></label>
       <label class="compact-label">Increase kg<input class="field" data-plan-field="incrementKg" type="number" min=".25" max="100" step=".25" value="${inputKg(exercise.incrementGrams)}"></label>
       <span class="plan-row-actions"><button class="tiny-button" type="button" data-move-exercise="up" aria-label="Move ${escapeHtml(exercise.name)} up">↑</button><button class="tiny-button" type="button" data-move-exercise="down" aria-label="Move ${escapeHtml(exercise.name)} down">↓</button><button class="tiny-button" type="button" data-remove-exercise aria-label="Remove ${escapeHtml(exercise.name)}">×</button></span>

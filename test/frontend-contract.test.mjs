@@ -29,10 +29,14 @@ test('keeps handlers for the important rendered workflow controls', () => {
   }
   assert.match(render, /renderMuscleMap\(focusExercises/);
   assert.match(render, /renderMuscleMap\(selected\.exercises, \{ interactive: true \}\)/);
+  assert.match(render, /data-plan-field="reps"/);
+  assert.doesNotMatch(render, /Rep range/);
   assert.match(app, /muscle: state\.searchMuscle/);
   assert.match(app, /event\.target\.closest\('\[data-muscle\]'\)/);
   assert.match(muscleMap, /data-muscle-map/);
   assert.match(muscleIsland, /react-muscle-highlighter/);
   assert.match(muscleIsland, /gym:body-model|BODY_MODEL_STORAGE_KEY/);
   assert.match(muscleIsland, /muscle-choices/);
+  assert.match(muscleIsland, /data-picker|picker/);
+  assert.match(index, /id="searchMuscleMap"/);
 });

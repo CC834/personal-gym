@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Interactive sample-data demo of Personal Gym, a minimalist self-hosted workout tracker.">
+    <title>Personal Gym — Demo</title>
+    <link rel="stylesheet" href="./demo.css">
+    <script type="module" src="./demo.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#demo-content">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Personal Gym demo home">
+        <span class="brand-mark" aria-hidden="true">PG</span>
+        <span>
+          <strong>Personal Gym</strong>
+          <small>Interactive demo</small>
+        </span>
+      </a>
+      <a class="github-link" href="https://github.com/CC834/personal-gym">View source <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main id="demo-content" class="app-shell">
+      <section class="demo-note" aria-label="Demo notice">
+        <span class="live-dot" aria-hidden="true"></span>
+        <p><strong>Sample mode.</strong> Explore freely—changes stay in this tab and reset when the page reloads.</p>
+        <button id="reset-demo" class="text-button" type="button">Reset demo</button>
+      </section>
+
+      <nav class="tabs" aria-label="Gym sections" role="tablist">
+        <button class="tab is-active" id="tab-today" type="button" role="tab" aria-selected="true" aria-controls="panel-today" data-demo-tab="today">
+          <span aria-hidden="true">●</span> Today
+        </button>
+        <button class="tab" id="tab-plan" type="button" role="tab" aria-selected="false" aria-controls="panel-plan" data-demo-tab="plan" tabindex="-1">
+          <span aria-hidden="true">▦</span> Plan
+        </button>
+        <button class="tab" id="tab-progress" type="button" role="tab" aria-selected="false" aria-controls="panel-progress" data-demo-tab="progress" tabindex="-1">
+          <span aria-hidden="true">↗</span> Progress
+        </button>
+        <button class="tab" id="tab-library" type="button" role="tab" aria-selected="false" aria-controls="panel-library" data-demo-tab="library" tabindex="-1">
+          <span aria-hidden="true">⌕</span> Exercises
+        </button>
+      </nav>
+
+      <section class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today" data-demo-panel="today">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Wednesday · Pull</p>
+            <h1>Today’s workout</h1>
+            <p>Build your back and arms with a simple, focused session.</p>
+          </div>
+          <div class="session-progress" aria-live="polite">
+            <strong id="completed-count">0 / 9</strong>
+            <span>sets complete</span>
+          </div>
+        </div>
+
+        <div class="today-layout">
+          <div class="exercise-stack" id="today-exercises">
+            <article class="exercise-card" data-exercise="Pull-up" data-sets="3">
+              <div class="exercise-number">01</div>
+              <div class="exercise-copy">
+                <p class="eyebrow">Back · Bodyweight</p>
+                <h2>Pull-up</h2>
+                <p>3 sets · 8 reps</p>
+                <div class="set-row" aria-label="Pull-up sets"></div>
+              </div>
+              <button class="preview-button" type="button" data-preview="Pull-up" aria-label="Preview Pull-up exercise">
+                <img src="./screenshots/exercise-animation.png" alt="Pull-up movement preview">
+              </button>
+            </article>
+
+            <article class="exercise-card" data-exercise="One-arm dumbbell row" data-sets="3">
+              <div class="exercise-number">02</div>
+              <div class="exercise-copy">
+                <p class="eyebrow">Back · Dumbbell</p>
+                <h2>One-arm dumbbell row</h2>
+                <p>3 sets · 10 reps</p>
+                <div class="set-row" aria-label="One-arm dumbbell row sets"></div>
+              </div>
+              <button class="preview-button placeholder-preview" type="button" data-preview="One-arm dumbbell row" aria-label="Preview One-arm dumbbell row exercise">
+                <span aria-hidden="true">ROW</span>
+              </button>
+            </article>
+
+            <article class="exercise-card" data-exercise="Dumbbell curl" data-sets="3">
+              <div class="exercise-number">03</div>
+              <div class="exercise-copy">
+                <p class="eyebrow">Biceps · Dumbbell</p>
+                <h2>Dumbbell curl</h2>
+                <p>3 sets · 10 reps</p>
+                <div class="set-row" aria-label="Dumbbell curl sets"></div>
+              </div>
+              <button class="preview-button placeholder-preview" type="button" data-preview="Dumbbell curl" aria-label="Preview Dumbbell curl exercise">
+                <span aria-hidden="true">CURL</span>
+              </button>
+            </article>
+          </div>
+
+          <aside class="muscle-summary">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">Muscle focus</p>
+                <h2>Back &amp; biceps</h2>
+              </div>
+            </div>
+            <img src="./screenshots/muscle-map.png" alt="Front and back body models highlighting the muscles trained by this pull workout">
+            <p>Tap a muscle in the full app to find matching exercises.</p>
+            <button class="secondary-button" type="button" data-open-tab="library">Explore exercises</button>
+          </aside>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-plan" role="tabpanel" aria-labelledby="tab-plan" data-demo-panel="plan" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Weekly rhythm</p>
+            <h1>Your plan</h1>
+            <p>A light Push, Pull, Legs routine with room to recover.</p>
+          </div>
+          <button class="primary-button" type="button" id="add-day">+ Add sample day</button>
+        </div>
+
+        <div class="plan-layout">
+          <div class="day-list" role="list" aria-label="Workout days">
+            <button class="day-card" type="button" data-plan-day="Monday" role="listitem" aria-pressed="false">
+              <span class="day-index">01</span>
+              <span><strong>Monday</strong><small>Push · 4 exercises</small></span>
+              <span class="day-arrow" aria-hidden="true">→</span>
+            </button>
+            <button class="day-card is-selected" type="button" data-plan-day="Wednesday" role="listitem" aria-pressed="true">
+              <span class="day-index">02</span>
+              <span><strong>Wednesday</strong><small>Pull · 3 exercises</small></span>
+              <span class="day-arrow" aria-hidden="true">→</span>
+            </button>
+            <button class="day-card" type="button" data-plan-day="Friday" role="listitem" aria-pressed="false">
+              <span class="day-index">03</span>
+              <span><strong>Friday</strong><small>Legs · 4 exercises</small></span>
+              <span class="day-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+
+          <article class="plan-detail">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow" id="plan-day-label">Wednesday · Pull</p>
+                <h2 id="plan-day-title">Back &amp; biceps</h2>
+              </div>
+              <span class="plan-count" id="plan-count">3 exercises</span>
+            </div>
+            <div class="plan-exercises" id="plan-exercises"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-progress" role="tabpanel" aria-labelledby="tab-progress" data-demo-panel="progress" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Last 4 weeks</p>
+            <h1>Your progress</h1>
+            <p>Small improvements, clearly visible.</p>
+          </div>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric"><span>Workouts</span><strong>12</strong><small><i>+3</i> from last month</small></article>
+          <article class="metric"><span>Sets completed</span><strong>128</strong><small><i>92%</i> plan completion</small></article>
+          <article class="metric"><span>Body weight</span><strong>78.4 <em>kg</em></strong><small><i>−0.8 kg</i> this month</small></article>
+          <article class="metric"><span>New personal records</span><strong>4</strong><small><i>+2</i> this month</small></article>
+        </div>
+
+        <div class="progress-layout">
+          <article class="chart-card">
+            <div class="section-heading compact">
+              <div><p class="eyebrow">Strength trend</p><h2>Dumbbell bench press</h2></div>
+              <strong>27.5 kg</strong>
+            </div>
+            <div class="chart" role="img" aria-label="Dumbbell bench press increased from 20 to 27.5 kilograms over six workouts">
+              <div class="chart-grid" aria-hidden="true"></div>
+              <svg viewBox="0 0 640 230" preserveAspectRatio="none" aria-hidden="true">
+                <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a45435" stop-opacity=".28"/><stop offset="1" stop-color="#a45435" stop-opacity="0"/></linearGradient></defs>
+                <path class="chart-area" d="M20 188 L135 166 L250 142 L365 114 L480 94 L620 50 L620 215 L20 215 Z"/>
+                <polyline points="20,188 135,166 250,142 365,114 480,94 620,50"/>
+                <g><circle cx="20" cy="188" r="5"/><circle cx="135" cy="166" r="5"/><circle cx="250" cy="142" r="5"/><circle cx="365" cy="114" r="5"/><circle cx="480" cy="94" r="5"/><circle cx="620" cy="50" r="6"/></g>
+              </svg>
+              <div class="chart-labels" aria-hidden="true"><span>Jul 18</span><span>Jul 25</span><span>Aug 2</span><span>Aug 9</span><span>Aug 16</span><span>Today</span></div>
+            </div>
+          </article>
+
+          <article class="recent-card">
+            <div class="section-heading compact"><div><p class="eyebrow">Recent bests</p><h2>Personal records</h2></div></div>
+            <ul class="record-list">
+              <li><span><strong>Goblet squat</strong><small>August 22</small></span><b>32.5 kg</b></li>
+              <li><span><strong>Dumbbell row</strong><small>August 18</small></span><b>30 kg</b></li>
+              <li><span><strong>Bench press</strong><small>August 15</small></span><b>27.5 kg</b></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-library" role="tabpanel" aria-labelledby="tab-library" data-demo-panel="library" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Exercise library</p>
+            <h1>Find your next movement</h1>
+            <p>Select a muscle group and browse exercises that target it.</p>
+          </div>
+        </div>
+
+        <div class="library-layout">
+          <aside class="body-filter">
+            <img src="./screenshots/exercise-browser.png" alt="Interactive front and back body models used to filter exercises by muscle">
+            <p class="muted">In the full app, every highlighted part of the body model is selectable.</p>
+          </aside>
+
+          <div class="library-results">
+            <div class="filter-bar">
+              <label class="search-field">
+                <span class="visually-hidden">Search exercises</span>
+                <span aria-hidden="true">⌕</span>
+                <input id="exercise-search" type="search" placeholder="Search exercises" autocomplete="off">
+              </label>
+              <div class="muscle-chips" aria-label="Filter by muscle">
+                <button class="chip is-active" type="button" data-muscle="All" aria-pressed="true">All</button>
+                <button class="chip" type="button" data-muscle="Chest" aria-pressed="false">Chest</button>
+                <button class="chip" type="button" data-muscle="Back" aria-pressed="false">Back</button>
+                <button class="chip" type="button" data-muscle="Shoulders" aria-pressed="false">Shoulders</button>
+                <button class="chip" type="button" data-muscle="Legs" aria-pressed="false">Legs</button>
+              </div>
+            </div>
+            <p class="result-count" id="result-count" aria-live="polite"></p>
+            <div class="exercise-grid" id="exercise-results"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="preview-dialog" id="preview-dialog">
+      <button class="dialog-close" type="button" aria-label="Close preview">×</button>
+      <img src="./screenshots/exercise-animation.png" alt="Exercise movement preview">
+      <div>
+        <p class="eyebrow">Movement preview</p>
+        <h2 id="preview-title">Exercise</h2>
+        <p>This documentation animation is an original placeholder. The self-hosted app can display locally imported, licensed exercise media.</p>
+      </div>
+    </dialog>
+
+    <footer>
+      <p>Personal Gym · A private, local-first workout tracker</p>
+      <a href="https://github.com/CC834/personal-gym">Source on GitHub</a>
+    </footer>
+  </body>
+</html>

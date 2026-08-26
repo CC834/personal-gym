@@ -4,6 +4,8 @@
 
 Personal Gym is a private, minimalist, self-hosted workout tracker designed to feel natural on both a phone at the gym and a desktop at home. It combines weekly planning, set-by-set logging, progression suggestions, body-weight history, exercise trends, interactive muscle maps, and animated exercise guidance.
 
+**[Try the interactive demo](https://cc834.github.io/personal-gym/)** — explore Today, Plan, Progress, and the exercise library using sample data. The demo runs entirely in your browser, saves nothing, and resets on refresh.
+
 ## Highlights
 
 - Build a weekly Push, Pull, Legs, or fully custom training plan.

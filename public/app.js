@@ -16,7 +16,9 @@ const targetFilter = document.querySelector('#targetFilter');
 const searchResults = document.querySelector('#searchResults');
 const muscleFilterChip = document.querySelector('#muscleFilterChip');
 const searchMuscleMap = document.querySelector('#searchMuscleMap');
+const searchMusclePicker = document.querySelector('#searchMusclePicker');
 const toast = document.querySelector('#toast');
+const wideExerciseSearch = matchMedia('(min-width: 900px)');
 
 const state = {
   tab: 'today',
@@ -344,7 +346,10 @@ function openSearchPanel(muscle = null) {
   }
   updateMuscleFilterChip();
   syncMusclePicker();
-  if (!searchDialog.open) searchDialog.showModal();
+  if (!searchDialog.open) {
+    searchMusclePicker.open = wideExerciseSearch.matches;
+    searchDialog.showModal();
+  }
   exerciseSearch.focus();
   runSearch();
 }
@@ -616,6 +621,9 @@ applyTheme(storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : mat
 themeButton.addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 window.addEventListener('offline', () => setStatus('Offline · changes will not save', true));
 window.addEventListener('online', () => { setStatus('Back online'); reload({ progress: state.tab === 'progress' }).catch(() => setStatus('Connection unavailable', true)); });
+wideExerciseSearch.addEventListener('change', (event) => {
+  if (searchDialog.open) searchMusclePicker.open = event.matches;
+});
 window.addEventListener('beforeunload', (event) => {
   if (!state.planDirty) return;
   event.preventDefault();

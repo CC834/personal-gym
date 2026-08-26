@@ -7,6 +7,7 @@ const index = readFileSync(new URL('../public/index.html', import.meta.url), 'ut
 const render = readFileSync(new URL('../public/render.js', import.meta.url), 'utf8');
 const muscleMap = readFileSync(new URL('../public/muscle-map.js', import.meta.url), 'utf8');
 const muscleIsland = readFileSync(new URL('../browser/muscle-map-island.jsx', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../public/app.css', import.meta.url), 'utf8');
 
 test('binds the top-level tab navigation outside main', () => {
   assert.match(index, /<nav class="tabs"/);
@@ -39,4 +40,7 @@ test('keeps handlers for the important rendered workflow controls', () => {
   assert.match(muscleIsland, /muscle-choices/);
   assert.match(muscleIsland, /data-picker|picker/);
   assert.match(index, /id="searchMuscleMap"/);
+  assert.match(app, /matchMedia\('\(min-width: 900px\)'\)/);
+  assert.match(css, /grid-template-columns: 280px minmax\(0,1fr\)/);
+  assert.match(css, /height: calc\(100dvh - 10px\)/);
 });

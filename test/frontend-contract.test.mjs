@@ -43,4 +43,8 @@ test('keeps handlers for the important rendered workflow controls', () => {
   assert.match(app, /matchMedia\('\(min-width: 900px\)'\)/);
   assert.match(css, /grid-template-columns: 280px minmax\(0,1fr\)/);
   assert.match(css, /height: calc\(100dvh - 10px\)/);
+  assert.match(css, /\.search-dialog \{[^}]*overflow: hidden/);
+  assert.match(css, /\.search-card \{[^}]*overflow: hidden/);
+  assert.match(css, /\.search-preview \{[^}]*grid-row: 2/);
+  assert.match(css, /\.search-preview \.guide-copy \{[^}]*overflow-wrap: anywhere/);
 });

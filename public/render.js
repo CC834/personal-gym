@@ -190,12 +190,35 @@ export function renderLibrary(state) {
 
 export function renderSearchResults(state) {
   if (state.searchLoading) return '<div class="loading-state"><span></span><p>Searching exercises…</p></div>';
-  if (!state.searchResults.length) return '<div class="empty-state"><p>No matching set-and-rep exercises found.</p></div>';
+  if (!state.searchResults.length) return `<div class="empty-state search-empty-state">
+    <div class="empty-icon" aria-hidden="true">＋</div>
+    <h2>No matching exercise</h2>
+    <p>${state.searchQuery ? `Nothing matches “${escapeHtml(state.searchQuery)}”. ` : ''}Create your own exercise and add it directly to this workout.</p>
+    <button class="button primary" type="button" data-create-custom-exercise>Create custom exercise</button>
+  </div>`;
   return state.searchResults.map((exercise) => `<article class="search-card">
     <div class="search-thumb">${exercise.imageAvailable ? `<img src="${mediaUrl(exercise.id, 'image')}" alt="" data-media-fallback>` : '↗'}</div>
     <div class="search-copy"><strong>${escapeHtml(exercise.name)}</strong><small>${escapeHtml(exercise.bodyPart)} · ${escapeHtml(exercise.equipment)}</small></div>
     <span class="search-actions"><button class="button quiet" type="button" data-preview-exercise="${escapeHtml(exercise.id)}" aria-controls="searchPreviewPanel">Preview</button><button class="button" type="button" data-add-exercise="${escapeHtml(exercise.id)}">Add</button></span>
   </article>`).join('');
+}
+
+export function renderSearchCustomExercise({ name = '', bodyPart = '', equipment = '', target = '', filters }) {
+  const optionList = (values) => values.map((value) => `<option value="${escapeHtml(value)}"></option>`).join('');
+  return `<div class="search-custom-layout">
+    <p class="eyebrow">New movement</p>
+    <h2 id="searchPreviewTitle">Create custom exercise</h2>
+    <p>Save a movement that is missing from the library. It will be added to your current workout immediately.</p>
+    <form class="custom-exercise-form" id="searchCustomExerciseForm">
+      <label class="compact-label">Name<input class="field" name="name" maxlength="80" required value="${escapeHtml(name)}" placeholder="Cable lateral raise"></label>
+      <label class="compact-label">Body part<input class="field" name="bodyPart" maxlength="60" required value="${escapeHtml(bodyPart)}" list="searchBodyPartOptions" placeholder="shoulders"><datalist id="searchBodyPartOptions">${optionList(filters.bodyParts)}</datalist></label>
+      <label class="compact-label">Equipment<input class="field" name="equipment" maxlength="60" required value="${escapeHtml(equipment)}" list="searchEquipmentOptions" placeholder="dumbbell"><datalist id="searchEquipmentOptions">${optionList(filters.equipment)}</datalist></label>
+      <label class="compact-label">Target muscle<input class="field" name="target" maxlength="60" required value="${escapeHtml(target)}" list="searchTargetOptions" placeholder="delts"><datalist id="searchTargetOptions">${optionList(filters.targets)}</datalist></label>
+      <label class="compact-label custom-instructions">Instructions, one step per line<textarea class="field" name="instructions" rows="4" maxlength="3000" placeholder="Stand tall.&#10;Raise with control."></textarea></label>
+      <p class="form-error" id="searchCustomExerciseError" role="alert"></p>
+      <button class="button primary" type="submit">Create and add</button>
+    </form>
+  </div>`;
 }
 
 export function renderSearchPreview(exercise) {

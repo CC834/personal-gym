@@ -241,6 +241,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .search-field input, .search-controls select { width: 100%; min-height: 43px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); }
 .search-results { min-width: 0; min-height: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-content: start; flex: 1; gap: 10px; padding: 19px 27px 28px; overflow: auto; }
 .search-card { min-width: 0; display: grid; grid-template-columns: 68px minmax(0,1fr) auto; align-self: start; align-items: center; gap: 13px; min-height: 92px; padding: 11px; overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
+.search-empty-state { grid-column: 1 / -1; }
 .search-preview-panel { position: absolute; inset: 0; z-index: 2; min-width: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
 .search-preview-panel[hidden] { display: none; }
 .search-preview-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--line); background: var(--bg); }
@@ -254,6 +255,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .search-preview-instructions { display: grid; gap: 12px; margin-bottom: 22px; }
 .search-preview-instructions p { display: grid; grid-template-columns: 25px minmax(0,1fr); gap: 9px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
 .search-preview-instructions p > span { width: 23px; height: 23px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent-dark); font-size: 9px; font-weight: 700; }
+.search-custom-layout { width: min(720px,100%); margin: 0 auto; }
+.search-custom-layout > h2 { margin: 0; font-family: var(--serif); font-size: clamp(32px,5vw,48px); font-weight: 400; letter-spacing: -.04em; line-height: 1.05; }
+.search-custom-layout > p:not(.eyebrow) { max-width: 560px; margin: 12px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.search-custom-layout .custom-exercise-form { margin-top: 28px; }
+.form-error { min-height: 17px; margin: 0; color: var(--danger); font-size: 11px; line-height: 1.45; }
 .search-thumb { width: 68px; height: 68px; display: grid; place-items: center; overflow: hidden; border-radius: 11px; background: var(--wash); color: var(--faint); font-size: 18px; }
 .search-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .search-copy { min-width: 0; }

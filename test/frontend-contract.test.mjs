@@ -42,7 +42,11 @@ test('keeps handlers for the important rendered workflow controls', () => {
   assert.match(index, /id="searchMuscleMap"/);
   assert.match(index, /id="searchPreviewPanel"/);
   assert.match(render, /renderSearchPreview/);
+  assert.match(render, /data-create-custom-exercise/);
+  assert.match(render, /renderSearchCustomExercise/);
   assert.match(app, /renderSearchPreview/);
+  assert.match(app, /searchCustomExerciseForm/);
+  assert.match(app, /customExerciseValues/);
   assert.match(app, /data-add-previewed-exercise/);
   assert.match(app, /matchMedia\('\(min-width: 900px\)'\)/);
   assert.match(css, /grid-template-columns: 280px minmax\(0,1fr\)/);

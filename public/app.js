@@ -1,4 +1,4 @@
-import { renderLibrary, renderPlan, renderProgress, renderSearchPreview, renderSearchResults, renderToday } from './render.js';
+import { renderLibrary, renderPlan, renderProgress, renderSearchCustomExercise, renderSearchPreview, renderSearchResults, renderToday } from './render.js';
 import { muscleLabel, renderMusclePicker } from './muscle-map.js';
 import { mountMuscleMaps, unmountMuscleMaps } from './muscle-map-island.js';
 
@@ -36,6 +36,7 @@ const state = {
   reviewEditable: false,
   searchResults: [],
   searchLoading: false,
+  searchQuery: '',
   searchPreview: null,
   searchMuscle: null,
   searchTimer: null,
@@ -313,7 +314,14 @@ function populateFilters() {
   add(targetFilter, state.bootstrap.filters.targets);
 }
 
+function customExerciseValues(form) {
+  const values = Object.fromEntries(new FormData(form));
+  values.instructions = String(values.instructions).split(/\n+/).map((step) => step.trim()).filter(Boolean);
+  return values;
+}
+
 async function runSearch() {
+  state.searchQuery = exerciseSearch.value.trim();
   state.searchLoading = true;
   searchResults.innerHTML = renderSearchResults(state);
   const params = new URLSearchParams({ q: exerciseSearch.value, bodyPart: bodyPartFilter.value, equipment: equipmentFilter.value, target: targetFilter.value, muscle: state.searchMuscle ?? '', limit: '60' });
@@ -559,8 +567,7 @@ main.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (event.target.id === 'customExerciseForm') {
     const form = event.target;
-    const values = Object.fromEntries(new FormData(form));
-    values.instructions = String(values.instructions).split(/\n+/).map((step) => step.trim()).filter(Boolean);
+    const values = customExerciseValues(form);
     try {
       const { exercise } = await api('/api/exercises/custom', { method: 'POST', body: JSON.stringify(values) });
       state.bootstrap = await api('/api/bootstrap');
@@ -616,6 +623,20 @@ for (const control of [exerciseSearch, bodyPartFilter, equipmentFilter, targetFi
   state.searchTimer = setTimeout(runSearch, 220);
 });
 searchResults.addEventListener('click', (event) => {
+  const createCustom = event.target.closest('[data-create-custom-exercise]');
+  if (createCustom) {
+    searchPreviewContent.innerHTML = renderSearchCustomExercise({
+      name: state.searchQuery,
+      bodyPart: bodyPartFilter.value,
+      equipment: equipmentFilter.value,
+      target: targetFilter.value || state.searchMuscle || '',
+      filters: state.bootstrap.filters
+    });
+    searchPreviewPanel.hidden = false;
+    searchPreviewPanel.scrollTop = 0;
+    closeSearchPreview.focus();
+    return;
+  }
   const button = event.target.closest('[data-add-exercise]');
   if (button) addExercise(button.dataset.addExercise);
   const preview = event.target.closest('[data-preview-exercise]');
@@ -633,6 +654,27 @@ searchResults.addEventListener('click', (event) => {
 searchPreviewPanel.addEventListener('click', (event) => {
   const add = event.target.closest('[data-add-previewed-exercise]');
   if (add) addExercise(add.dataset.addPreviewedExercise);
+});
+searchPreviewPanel.addEventListener('submit', async (event) => {
+  if (event.target.id !== 'searchCustomExerciseForm') return;
+  event.preventDefault();
+  const form = event.target;
+  const submit = form.querySelector('[type="submit"]');
+  const error = form.querySelector('#searchCustomExerciseError');
+  error.textContent = '';
+  submit.disabled = true;
+  try {
+    const { exercise } = await api('/api/exercises/custom', { method: 'POST', body: JSON.stringify(customExerciseValues(form)) });
+    state.bootstrap.catalog.count += 1;
+    for (const [filter, value] of [['bodyParts', exercise.bodyPart], ['equipment', exercise.equipment], ['targets', exercise.target]]) {
+      if (!state.bootstrap.filters[filter].includes(value)) state.bootstrap.filters[filter].push(value);
+    }
+    state.searchResults.unshift(exercise);
+    addExercise(exercise.id);
+  } catch (caught) {
+    error.textContent = caught.message;
+    submit.disabled = false;
+  }
 });
 main.addEventListener('keydown', (event) => {
   const muscle = event.target.closest('[data-muscle]');

@@ -48,6 +48,13 @@
     </div>
     <button class="muscle-filter-chip" id="muscleFilterChip" type="button" hidden></button>
     <div class="search-results" id="searchResults"></div>
+    <section class="search-preview-panel" id="searchPreviewPanel" aria-labelledby="searchPreviewTitle" hidden>
+      <div class="search-preview-head">
+        <button class="button quiet" id="closeSearchPreview" type="button">← Back to exercises</button>
+        <button class="icon-button" id="closeSearchFromPreview" type="button" aria-label="Close exercise search">×</button>
+      </div>
+      <div class="search-preview-content" id="searchPreviewContent"></div>
+    </section>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

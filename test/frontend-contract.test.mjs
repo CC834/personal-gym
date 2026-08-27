@@ -40,11 +40,16 @@ test('keeps handlers for the important rendered workflow controls', () => {
   assert.match(muscleIsland, /muscle-choices/);
   assert.match(muscleIsland, /data-picker|picker/);
   assert.match(index, /id="searchMuscleMap"/);
+  assert.match(index, /id="searchPreviewPanel"/);
+  assert.match(render, /renderSearchPreview/);
+  assert.match(app, /renderSearchPreview/);
+  assert.match(app, /data-add-previewed-exercise/);
   assert.match(app, /matchMedia\('\(min-width: 900px\)'\)/);
   assert.match(css, /grid-template-columns: 280px minmax\(0,1fr\)/);
   assert.match(css, /height: calc\(100dvh - 10px\)/);
   assert.match(css, /\.search-dialog \{[^}]*overflow: hidden/);
   assert.match(css, /\.search-card \{[^}]*overflow: hidden/);
-  assert.match(css, /\.search-preview \{[^}]*grid-row: 2/);
-  assert.match(css, /\.search-preview \.guide-copy \{[^}]*overflow-wrap: anywhere/);
+  assert.match(css, /\.search-preview-panel \{[^}]*position: absolute/);
+  assert.match(css, /\.search-preview-panel \{[^}]*z-index: 2/);
+  assert.match(css, /\.search-preview-content \{[^}]*overflow: auto/);
 });

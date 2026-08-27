@@ -1,4 +1,4 @@
-import { renderLibrary, renderPlan, renderProgress, renderSearchResults, renderToday } from './render.js';
+import { renderLibrary, renderPlan, renderProgress, renderSearchPreview, renderSearchResults, renderToday } from './render.js';
 import { muscleLabel, renderMusclePicker } from './muscle-map.js';
 import { mountMuscleMaps, unmountMuscleMaps } from './muscle-map-island.js';
 
@@ -14,6 +14,10 @@ const bodyPartFilter = document.querySelector('#bodyPartFilter');
 const equipmentFilter = document.querySelector('#equipmentFilter');
 const targetFilter = document.querySelector('#targetFilter');
 const searchResults = document.querySelector('#searchResults');
+const searchPreviewPanel = document.querySelector('#searchPreviewPanel');
+const searchPreviewContent = document.querySelector('#searchPreviewContent');
+const closeSearchPreview = document.querySelector('#closeSearchPreview');
+const closeSearchFromPreview = document.querySelector('#closeSearchFromPreview');
 const muscleFilterChip = document.querySelector('#muscleFilterChip');
 const searchMuscleMap = document.querySelector('#searchMuscleMap');
 const searchMusclePicker = document.querySelector('#searchMusclePicker');
@@ -338,6 +342,8 @@ function syncMusclePicker() {
 function openSearchPanel(muscle = null) {
   state.searchMuscle = muscle;
   state.searchPreview = null;
+  searchPreviewPanel.hidden = true;
+  searchPreviewContent.replaceChildren();
   if (muscle) {
     exerciseSearch.value = '';
     bodyPartFilter.value = '';
@@ -579,6 +585,15 @@ main.addEventListener('submit', async (event) => {
 });
 
 closeSearch.addEventListener('click', () => searchDialog.close());
+closeSearchFromPreview.addEventListener('click', () => searchDialog.close());
+closeSearchPreview.addEventListener('click', () => {
+  const previewedId = state.searchPreview?.id;
+  state.searchPreview = null;
+  searchPreviewPanel.hidden = true;
+  searchPreviewContent.replaceChildren();
+  const previewButton = [...searchResults.querySelectorAll('[data-preview-exercise]')].find((button) => button.dataset.previewExercise === previewedId);
+  (previewButton ?? exerciseSearch).focus();
+});
 muscleFilterChip.addEventListener('click', () => {
   state.searchMuscle = null;
   updateMuscleFilterChip();
@@ -586,6 +601,16 @@ muscleFilterChip.addEventListener('click', () => {
   runSearch();
 });
 searchDialog.addEventListener('click', (event) => { if (event.target === searchDialog) searchDialog.close(); });
+searchDialog.addEventListener('cancel', (event) => {
+  if (searchPreviewPanel.hidden) return;
+  event.preventDefault();
+  closeSearchPreview.click();
+});
+searchDialog.addEventListener('close', () => {
+  state.searchPreview = null;
+  searchPreviewPanel.hidden = true;
+  searchPreviewContent.replaceChildren();
+});
 for (const control of [exerciseSearch, bodyPartFilter, equipmentFilter, targetFilter]) control.addEventListener('input', () => {
   clearTimeout(state.searchTimer);
   state.searchTimer = setTimeout(runSearch, 220);
@@ -596,11 +621,18 @@ searchResults.addEventListener('click', (event) => {
   const preview = event.target.closest('[data-preview-exercise]');
   if (preview) {
     api(`/api/exercises/${encodeURIComponent(preview.dataset.previewExercise)}`).then(({ exercise }) => {
-      state.searchPreview = state.searchPreview?.id === exercise.id ? null : exercise;
-      searchResults.innerHTML = renderSearchResults(state);
-      installMediaFallbacks(searchResults);
+      state.searchPreview = exercise;
+      searchPreviewContent.innerHTML = renderSearchPreview(exercise);
+      installMediaFallbacks(searchPreviewContent);
+      searchPreviewPanel.hidden = false;
+      searchPreviewPanel.scrollTop = 0;
+      closeSearchPreview.focus();
     }).catch((error) => showToast(error.message));
   }
+});
+searchPreviewPanel.addEventListener('click', (event) => {
+  const add = event.target.closest('[data-add-previewed-exercise]');
+  if (add) addExercise(add.dataset.addPreviewedExercise);
 });
 main.addEventListener('keydown', (event) => {
   const muscle = event.target.closest('[data-muscle]');

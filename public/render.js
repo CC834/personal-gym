@@ -191,10 +191,28 @@ export function renderLibrary(state) {
 export function renderSearchResults(state) {
   if (state.searchLoading) return '<div class="loading-state"><span></span><p>Searching exercises…</p></div>';
   if (!state.searchResults.length) return '<div class="empty-state"><p>No matching set-and-rep exercises found.</p></div>';
-  return state.searchResults.map((exercise) => `<article class="search-card${state.searchPreview?.id === exercise.id ? ' expanded' : ''}">
+  return state.searchResults.map((exercise) => `<article class="search-card">
     <div class="search-thumb">${exercise.imageAvailable ? `<img src="${mediaUrl(exercise.id, 'image')}" alt="" data-media-fallback>` : '↗'}</div>
     <div class="search-copy"><strong>${escapeHtml(exercise.name)}</strong><small>${escapeHtml(exercise.bodyPart)} · ${escapeHtml(exercise.equipment)}</small></div>
-    <span class="search-actions"><button class="button quiet" type="button" data-preview-exercise="${escapeHtml(exercise.id)}">Preview</button><button class="button" type="button" data-add-exercise="${escapeHtml(exercise.id)}">Add</button></span>
-    ${state.searchPreview?.id === exercise.id ? `<div class="search-preview"><div class="exercise-media">${state.searchPreview.gifAvailable ? `<img src="${mediaUrl(exercise.id, 'gif')}" alt="${escapeHtml(exercise.name)} demonstration" data-media-fallback>` : '<span>Animation unavailable</span>'}</div><div class="guide-copy">${state.searchPreview.instructions.slice(0, 5).map((step, index) => `<p>${index + 1}. ${escapeHtml(step)}</p>`).join('')}<p class="attribution">${escapeHtml(state.searchPreview.attribution)}</p></div></div>` : ''}
+    <span class="search-actions"><button class="button quiet" type="button" data-preview-exercise="${escapeHtml(exercise.id)}" aria-controls="searchPreviewPanel">Preview</button><button class="button" type="button" data-add-exercise="${escapeHtml(exercise.id)}">Add</button></span>
   </article>`).join('');
+}
+
+export function renderSearchPreview(exercise) {
+  const instructions = exercise.instructions?.slice(0, 5) ?? [];
+  return `<div class="search-preview-layout">
+    <div class="search-preview-media">
+      ${exercise.gifAvailable ? `<img src="${mediaUrl(exercise.id, 'gif')}" alt="${escapeHtml(exercise.name)} demonstration" data-media-fallback>` : '<span>Animation unavailable</span>'}
+    </div>
+    <div class="search-preview-copy">
+      <p class="eyebrow">Exercise preview</p>
+      <h2 id="searchPreviewTitle">${escapeHtml(exercise.name)}</h2>
+      <p class="search-preview-meta">${escapeHtml(exercise.bodyPart)} · ${escapeHtml(exercise.equipment)} · ${escapeHtml(exercise.target)}</p>
+      <div class="search-preview-instructions">
+        ${instructions.map((step, index) => `<p><span>${index + 1}</span>${escapeHtml(step)}</p>`).join('') || '<p>Instructions are unavailable for this exercise.</p>'}
+      </div>
+      ${exercise.attribution ? `<p class="attribution">${escapeHtml(exercise.attribution)}</p>` : ''}
+      <button class="button primary" type="button" data-add-previewed-exercise="${escapeHtml(exercise.id)}">Add to workout</button>
+    </div>
+  </div>`;
 }
